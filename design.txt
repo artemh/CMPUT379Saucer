@@ -1,0 +1,37 @@
+User interface, game design:
+
+Game controls:
+
+, - move left
+. - move right
+space - fire
+n - new game
+q - quit
+
+How to play:
+
+The player starts on level 1 with 10 rockets and 30 lives (which is an upper limit of lives). At random intervals,
+saucers will appear on the left hand side of the screen (and these intervals will decrease as the level increases).
+These saucers can be of various sizes from 3 to 7 (<-> to <----->) and move at random speeds on random rows.
+Killing a saucer will reward with a player with at least 4 rockets, killing the two smallest saucers (size 3 or 4)
+will reward an additional rocket, and the very smallest (size 3) will reward the player with additional lives
+equal to the current level, up to a maximum of 30 for killing the most important alien saucers. Every 10
+kills increases the level, which increases both difficulty and reward. Lives decrease with every saucer that escapes.
+Running out of rockets or lives will result in losing the game.
+
+
+Design choices beyond the specified deliverables:
+- There is a level that increases with every 10 kills. Saucers both move and are generated faster at higher levels.
+  Saucers can also be random size (3 to 7 inclusive). The smallest two saucers reward an additional rocket and the
+  very smallest is considered a more powerful enemy, and actually rewards lives based on the level.
+- There is a basic high score functionality, that simply reads from/writes to a file "score" in the game directory.
+  Note that there is no error checking implemented for the file open/read/writes - this is by design (somewhat).
+  Ideally, some sort of error would be logged, but it didn't make sense to crash/quit because a high score could not
+  be read as that is a very trivial feature. Users would probably be more satisfied with a high score of 0 that
+  session than the game crashing.
+- Thread cleanup - we make sure everything quits nicely by using flags for the simple threads and then killing their
+  launchers afterward. In the structs, each item has a killed flag that can be set. If it is set, the thread
+  cleans itself up and exits out. To reset the game, this is all that has to be done, this kills all the individual
+  saucer and rocket threads but not their launchers and the keyboard control, so once all the variables are reset
+  the game is essentially starting over again. To quit - via toggling the quit flag - first the same cleanup is called
+  and waited for, and afterwards you can simply cancel the launcher threads, clean up and exit nicely.
